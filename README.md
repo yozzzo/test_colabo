@@ -29,9 +29,12 @@ Deploy a FastAPI server on Google Colab with GPU acceleration for heavy processi
    - Upload `colab_gpu_api.ipynb` to Google Colab
    - Switch to GPU runtime: Runtime → Change runtime type → GPU
 
-3. **Update configuration**:
-   - Replace `NGROK_AUTHTOKEN = "REPLACE_ME"` with your token
-   - Change `API_KEY = "foo"` to a secure key
+3. **Set up Colab Secrets** (NEW - Secure Method):
+   - Click the 🔑 (key) icon in the left sidebar
+   - Add the following secrets:
+     - `NGROK_AUTHTOKEN`: Your ngrok auth token
+     - `API_KEY`: A secure API key (e.g., `sk-proj-abc123xyz789`)
+   - See [SETUP_SECRETS.md](SETUP_SECRETS.md) for detailed instructions
 
 ### 3. Running the API
 

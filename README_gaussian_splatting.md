@@ -31,11 +31,12 @@ Convert images or videos into 3D Gaussian Splatting models using Google Colab's 
    - Upload `gaussian_splatting_api.ipynb` to Google Colab
    - **IMPORTANT**: Change runtime to GPU (Runtime → Change runtime type → T4 GPU)
 
-3. **Update configuration** (in cell 3):
-   ```python
-   NGROK_AUTHTOKEN = "your-ngrok-token-here"
-   API_KEY = "your-secure-api-key-here"
-   ```
+3. **Set up Colab Secrets** (Secure Method):
+   - Click the 🔑 (key) icon in the left sidebar
+   - Add the following secrets:
+     - `NGROK_AUTHTOKEN`: Your ngrok auth token
+     - `API_KEY`: A secure API key (e.g., `sk-proj-abc123xyz789`)
+   - See [SETUP_SECRETS.md](SETUP_SECRETS.md) for detailed instructions
 
 ### 3. Running the API
 
