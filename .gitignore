@@ -1,3 +1,14 @@
 *.pyc
 __pycache__/
 .env
+.DS_Store
+*.jpg
+*.png
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.ply
+*.zip
+test_image_*.jpg
+sample.*
