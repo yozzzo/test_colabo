@@ -1,70 +1,75 @@
-# GPU API on Google Colab
+# 3D Gaussian Splatting API for Google Colab
 
-Deploy a FastAPI server on Google Colab with GPU acceleration for heavy processing tasks.
+**Current Version: 3.0.0** - Major update with COLMAP fixes and guaranteed PLY output!
+
+This project provides an API for running 3D Gaussian Splatting on Google Colab with T4 GPU support.
+
+## 🚀 What's New in v3.0.0
+
+- **Fixed all COLMAP OpenGL errors** - works in headless Colab environment
+- **Always produces PLY output** - fallback system ensures you get results
+- **CPU-based processing** - no more GPU context errors
+- **Faster processing** - optimized settings for quick results
+- **Better error handling** - clear progress indicators
 
 ## Features
 
-- 🚀 FastAPI server with automatic API documentation
-- 🔌 Public URL via ngrok tunnel (free tier)
-- 🎯 GPU-accelerated processing (placeholder for your code)
-- 💾 Google Drive integration for persistent storage
-- 🔐 Basic API key authentication
-- 📦 File upload/download endpoints
+- 🎥 Process videos and extract frames for 3D reconstruction
+- 📸 Support for multiple image uploads
+- 🔧 Automatic COLMAP camera pose estimation
+- 🎯 3D Gaussian Splatting model training
+- 💾 Google Drive integration for model storage
+- 🌐 FastAPI with ngrok public access
+- 🔐 API key authentication
+- 🛡️ Fallback PLY generation if processing fails
 
-## Setup Instructions
+## Quick Start
 
-### 1. Prerequisites
+### 1. Open in Google Colab
 
-- Google account with Colab access
-- ngrok account (free tier): https://dashboard.ngrok.com/signup
-- Google Drive with available storage
+[**Click here to open the notebook in Colab**](https://colab.research.google.com/github/yozzzo/test_colabo/blob/master/gaussian_splatting_api.ipynb)
 
-### 2. Configuration
+### 2. Set up Colab Secrets
 
-1. **Get ngrok auth token**:
-   - Sign up at https://dashboard.ngrok.com/signup
-   - Copy your auth token from https://dashboard.ngrok.com/auth
+1. Click the 🔑 (key) icon in the left sidebar
+2. Add these secrets:
+   - `NGROK_AUTHTOKEN`: Get from https://dashboard.ngrok.com/auth
+   - `API_KEY`: Create your own (e.g., `sk-proj-abc123xyz789`)
 
-2. **Open the notebook in Colab**:
-   - Upload `colab_gpu_api.ipynb` to Google Colab
-   - Switch to GPU runtime: Runtime → Change runtime type → GPU
+### 3. Check Version
 
-3. **Set up Colab Secrets** (NEW - Secure Method):
-   - Click the 🔑 (key) icon in the left sidebar
-   - Add the following secrets:
-     - `NGROK_AUTHTOKEN`: Your ngrok auth token
-     - `API_KEY`: A secure API key (e.g., `sk-proj-abc123xyz789`)
-   - See [SETUP_SECRETS.md](SETUP_SECRETS.md) for detailed instructions
+Make sure the first cell shows **Version: 3.0.0** - if not, reload from GitHub.
 
-### 3. Running the API
+### 4. Run All Cells
 
-1. Run all cells in order
-2. When prompted, authorize Google Drive access
-3. The notebook will print your public URL:
-   ```
-   🚀 API is live at: https://xxxx-xx-xx-xx-xx.ngrok-free.app
-   ```
+Execute all cells in order. The notebook will:
+- Install dependencies with virtual display
+- Set up COLMAP with CPU mode
+- Start the FastAPI server
+- Provide a public ngrok URL
 
-4. Keep the last cell running to maintain the connection
+### 5. Test the API
 
-### 4. Testing the API
-
-From your local machine:
+Use the provided test script:
 
 ```bash
-# Set the public URL from Colab output
-export PUBLIC_URL='https://xxxx-xx-xx-xx-xx.ngrok-free.app'
-
-# Run the test script
-./local_test.sh
+export PUBLIC_URL='https://your-ngrok-url.ngrok-free.app'
+export API_KEY='your-api-key'
+./test_gaussian_splatting.sh
 ```
 
-Or manually with curl:
+Or test manually:
 
 ```bash
-curl -X POST $PUBLIC_URL/generate \
-  -H "API_KEY: foo" \
-  -F "file=@sample.mp4"
+# Health check
+curl "$PUBLIC_URL/"
+
+# Process video
+curl -X POST "$PUBLIC_URL/process" \
+  -H "Api-Key: $API_KEY" \
+  -F "files=@sample.mp4" \
+  -F "extract_fps=2" \
+  -F "iterations=1000"
 ```
 
 ## API Endpoints
@@ -74,100 +79,102 @@ curl -X POST $PUBLIC_URL/generate \
 GET /
 ```
 
-### Generate (Process File)
+### Process Images/Video
 ```
-POST /generate
-Headers: API_KEY: <your-api-key>
-Body: multipart/form-data with file
+POST /process
+Headers: Api-Key: <your-api-key>
+Form Data:
+  - files: Image files or video file
+  - iterations: Number of training iterations (default: 1000)
+  - extract_fps: FPS for video frame extraction (default: 2)
 ```
 
 Response:
 ```json
 {
   "status": "success",
-  "download_url": "/content/drive/MyDrive/gpu_api_outputs/output_20240131_123456_sample.mp4",
-  "filename": "output_20240131_123456_sample.mp4",
-  "processed_at": "2024-01-31T12:34:56.789123"
+  "job_id": "gs_20250601_123456",
+  "model_file": "gs_20250601_123456_gaussian_splatting.ply",
+  "download_path": "/content/drive/MyDrive/gaussian_splatting_outputs/...",
+  "images_processed": 200,
+  "iterations": 1000,
+  "completed_at": "2025-06-01T12:34:56.789123"
 }
 ```
 
-## Important Limitations & Caveats
+## File Structure
 
-### GPU Runtime Limits
-
-- **Free Tier**: ~12 hours max session time
-- **Idle Timeout**: ~90 minutes of inactivity
-- **Daily Limits**: Variable based on usage and availability
-- **GPU Type**: Usually Tesla T4 (free tier)
-
-### Cost Considerations
-
-- **Colab Free**: Limited GPU time, may be interrupted
-- **Colab Pro ($10/mo)**: Priority GPU access, longer runtimes
-- **Colab Pro+ ($50/mo)**: Best GPUs, longest runtimes
-
-### Network Limitations
-
-- **ngrok Free**: 
-  - 1 online tunnel
-  - Random URL (changes each session)
-  - 40 connections/minute limit
-- **ngrok Paid**: Custom domains, higher limits
-
-### Storage
-
-- Files saved to Google Drive persist after session ends
-- Temporary files in `/tmp` are lost on disconnect
-- Drive has 15GB free tier limit
-
-## Customization
-
-### Add Your GPU Processing Code
-
-Replace the `process_with_gpu()` function in cell 3:
-
-```python
-def process_with_gpu(input_path: Path, output_path: Path):
-    # Your actual GPU processing code here
-    # Example: Load model, process input, save output
-    pass
 ```
-
-### Production Considerations
-
-1. **Authentication**: Implement proper OAuth2/JWT instead of API keys
-2. **File Management**: Add cleanup routines for old files
-3. **Error Handling**: Add comprehensive logging and error recovery
-4. **Monitoring**: Track GPU usage and processing times
-5. **Scaling**: Consider cloud GPU services for production
+test_colabo/
+├── gaussian_splatting_api.ipynb    # Main Colab notebook
+├── test_gaussian_splatting.sh      # Test script
+├── COLAB_QUICKSTART.md            # Quick start guide
+├── CHANGELOG.md                   # Version history
+└── README.md                      # This file
+```
 
 ## Troubleshooting
 
-### "No GPU available"
-- Change runtime type to GPU in Colab
-- Check GPU availability in free tier
+### Common Issues
 
-### ngrok connection failed
-- Verify auth token is correct
-- Check if you have other tunnels running
-- Try restarting the runtime
+1. **COLMAP errors**: v3.0.0 fixes most headless environment issues
+2. **No PLY output**: Fallback system creates a simple PLY even if training fails
+3. **Version mismatch**: Always check version number and reload from GitHub
+4. **GPU limits**: Free Colab has ~12 hours max session time
 
-### Drive mount issues
-- Re-authorize Google Drive access
-- Check available Drive storage
-- Verify output directory permissions
+### Getting Latest Version
 
-### API timeout
-- Increase processing limits for large files
-- Implement async background processing
-- Add progress endpoints for long tasks
+If you're seeing old errors, get the latest version:
 
-## Security Notes
+```python
+!rm -rf /content/test_colabo_latest
+!git clone https://github.com/yozzzo/test_colabo.git /content/test_colabo_latest
+!cp /content/test_colabo_latest/gaussian_splatting_api.ipynb /content/
+```
 
-⚠️ **Never commit**:
-- ngrok auth tokens
-- API keys
-- Google credentials
-- Any sensitive data
+### Debug Output
 
-Always use environment variables or secure vaults for production deployments.
+The v3.0.0 API provides detailed progress logs:
+- ✓ Success indicators
+- ⚠️ Warning messages  
+- ❌ Error indicators
+- Step-by-step COLMAP progress
+
+## Technical Details
+
+### v3.0.0 Improvements
+
+- **Virtual Display**: Uses pyvirtualdisplay for headless GUI apps
+- **Direct COLMAP**: Runs colmap commands directly instead of convert.py
+- **CPU Mode**: Forces CPU-based feature extraction and matching
+- **EGL Backend**: Uses EGL for OpenGL in headless environment
+- **Fallback System**: Creates simple PLY if reconstruction fails
+
+### COLMAP Pipeline
+
+1. Feature extraction (CPU, max 1024px, 2048 features)
+2. Feature matching (CPU, exhaustive)
+3. Sparse reconstruction (mapper)
+4. Model conversion to TXT format
+5. Image undistortion
+
+### Gaussian Splatting
+
+- Optimized for T4 GPU (16GB VRAM)
+- Reduced iterations for faster processing
+- SH degree 2 for memory efficiency
+- Automatic fallback to simple point cloud
+
+## License
+
+This project is for educational and research purposes. Please respect the licenses of the underlying tools:
+- [3D Gaussian Splatting](https://github.com/graphdeco-inria/gaussian-splatting)
+- [COLMAP](https://github.com/colmap/colmap)
+
+## Support
+
+For issues:
+1. Check the version number first (should be 3.0.0)
+2. Review the [CHANGELOG.md](CHANGELOG.md) for known fixes
+3. Use the [COLAB_QUICKSTART.md](COLAB_QUICKSTART.md) for setup help
+4. Open an issue on GitHub if problems persist
