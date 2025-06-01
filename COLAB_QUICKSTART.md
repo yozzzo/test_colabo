@@ -30,14 +30,18 @@ print("✅ Latest version copied to /content/gaussian_splatting_api.ipynb")
 
 ## 確認方法
 
-最新版かどうか確認するには、セル3を見て以下のコードになっているか確認：
+**最初のセルのバージョン番号を確認してください：**
+- 最新版: **Version: 2.1.0**
+- 古いバージョンの場合、GitHubから再度取得してください
+
+また、セル3が以下のコードになっているか確認：
 
 ```python
 # Simple COLMAP installation for Google Colab
 print("Installing COLMAP via apt-get...")
 ```
 
-古いバージョンの場合は `colmap-3.8-linux-cuda.tar.gz` をダウンロードしようとします。
+**重要**: セル4が存在する場合は古いバージョンです！最新版ではセル3の次はセル5になります。
 
 ## トラブルシューティング
 
