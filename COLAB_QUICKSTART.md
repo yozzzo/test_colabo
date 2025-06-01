@@ -31,7 +31,7 @@ print("✅ Latest version copied to /content/gaussian_splatting_api.ipynb")
 ## 確認方法
 
 **最初のセルのバージョン番号を確認してください：**
-- 最新版: **Version: 2.1.0**
+- 最新版: **Version: 3.0.0**
 - 古いバージョンの場合、GitHubから再度取得してください
 
 また、セル3が以下のコードになっているか確認：
